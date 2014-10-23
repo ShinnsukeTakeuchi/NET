@@ -57,7 +57,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		} else if (v.getId() == R.id.config) {// 設定
 			intent = new Intent(this, ConfigActivity.class);
 		} else {
-			finish();
+			this.moveTaskToBack(true);
 		}
 		startActivity(intent);
 	}
