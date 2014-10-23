@@ -29,11 +29,11 @@
     <string name="title_activity_config">ConfigActivity</string>
     <string name="changed_config_button">変更</string>
     
-    <string name="config1">ユーザー名：</string>
-    <string name="config2">性別：</string>
-    <string name="config3">年齢：</string>
-    <string name="config4"></string>
-    <string name="config5"></string>
+    <string name="config1">ユーザーID：</string>
+    <string name="config2">ユーザー名：</string>
+    <string name="config3">性別：</string>
+    <string name="config4">年齢：</string>
+    <string name="config5">都道府県：</string>
     <string name="config6">タグ：</string>
 
 </resources>
