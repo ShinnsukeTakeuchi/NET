@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="17"
         android:targetSdkVersion="17" />
 
     <application
@@ -21,6 +21,22 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".OneChatActivity"
+            android:label="@string/title_activity_one_chat" >
+        </activity>
+        <activity
+            android:name=".GrepChatActivity"
+            android:label="@string/title_activity_grep_chat" >
+        </activity>
+        <activity
+            android:name=".SelectChatActivity"
+            android:label="@string/title_activity_select_chat" >
+        </activity>
+        <activity
+            android:name=".ConfigActivity"
+            android:label="@string/title_activity_config" >
         </activity>
     </application>
 
