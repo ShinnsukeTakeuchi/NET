@@ -1,8 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- MainActivity -->
     <string name="app_name">NET</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_title">NET</string>
     <string name="action_settings">Settings</string>
+    <string name="one_chat">2人でチャット</string>
+    <string name="grep_chat">みんなでチャット</string>
+    <string name="config">設定</string>
+    <string name="app_close">終了</string>
+
+    <!-- OneChatActivity -->
+    <string name="oc_title">二人チャット</string>
+    <string name="oc_exit_button">退室</string>
+    <string name="oc_send_message">送信</string>
+    <string name="title_activity_one_chat">2人だけのチャットルーム</string>
+
+    <!-- GrepChatActivity -->
+    <string name="gc_title">みんなでチャット</string>
+    <string name="gc_exit_button">退室</string>
+    <string name="gc_send_message">送信</string>
+    <string name="title_activity_grep_chat">みんなのチャットルーム</string>
+
+    <!-- SelectChatActivity -->
+    <string name="title_activity_select_chat">チャットルームの選択</string>
+
+    <!-- ConfigActivity -->
+    <string name="title_activity_config">ConfigActivity</string>
+    <string name="changed_config_button">変更</string>
+    
+    <string name="config1">ユーザーID：</string>
+    <string name="config2">ユーザー名：</string>
+    <string name="config3">性別：</string>
+    <string name="config4">年齢：</string>
+    <string name="config5">都道府県：</string>
+    <string name="config6">タグ：</string>
 
 </resources>
