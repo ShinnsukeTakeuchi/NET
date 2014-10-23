@@ -22,9 +22,11 @@ public class MainActivity extends Activity implements OnClickListener {
         View oneChat = findViewById(R.id.oneChat);
         View grepChat = findViewById(R.id.grepChat);
         View config = findViewById(R.id.config);
+        View appEnd = findViewById(R.id.appEnd);
         oneChat.setOnClickListener(this);
         grepChat.setOnClickListener(this);
         config.setOnClickListener(this);
+        appEnd.setOnClickListener(this);
     }
 
 
@@ -57,7 +59,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		} else if (v.getId() == R.id.config) {// 設定
 			intent = new Intent(this, ConfigActivity.class);
 		} else {
-			this.moveTaskToBack(true);
+			this.finish();
 		}
 		startActivity(intent);
 	}
