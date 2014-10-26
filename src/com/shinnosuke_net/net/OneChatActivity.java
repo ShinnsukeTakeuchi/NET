@@ -8,12 +8,18 @@ import com.shinnosuke_net.net.tool.*;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
 
 public class OneChatActivity extends Activity {
-
+	private List<CustomData> chatData;
+	private ListView chatTimeLine;
+	private CustomAdaptert customAdapter;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -21,8 +27,8 @@ public class OneChatActivity extends Activity {
 		
 		//テストデータ
 		Date date = new Date();
-		List<CustomData> chatData = new ArrayList<CustomData>();
-		for (int i=1 ; i<=30 ; i++) {
+		chatData = new ArrayList<CustomData>();
+		for (int i=1 ; i<=10 ; i++) {
 			CustomData customData = new CustomData();
 			customData.setUserId("user00"+i);
 			customData.setUserName("user"+i);
@@ -32,9 +38,12 @@ public class OneChatActivity extends Activity {
 		}
 		
 		//テストデータをListViewにセット
-		CustomAdaptert customAdapter = new CustomAdaptert(this, 0, chatData);
-		ListView chatTimeLine = (ListView) findViewById(R.id.oneChatTimeLine);
+		customAdapter = new CustomAdaptert(this, 0, chatData);
+		chatTimeLine = (ListView) findViewById(R.id.oneChatTimeLine);
 		chatTimeLine.setAdapter(customAdapter);
+		
+		//リストの最終行を表示
+		chatTimeLine.setSelection(chatData.size());
 	}
 
 	@Override
@@ -54,5 +63,37 @@ public class OneChatActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	/**
+	 * 送信ボタンを押された時の処理
+	 * @param v
+	 */
+	public void postMesseage(View v) {
+		EditText postMesseage = (EditText) findViewById(R.id.editMessage);
+		SpannableStringBuilder sp = (SpannableStringBuilder)postMesseage.getText();
+		
+		if (sp.toString().length()==0) {
+			//リストの最終行を表示
+			chatTimeLine.setSelection(chatData.size());
+			return;
+		}
+		
+		Date nowDate = new Date();
+		
+		CustomData customData = new CustomData();
+		customData.setUserId("user001");
+		customData.setUserName("テストユーザーさん");
+		customData.setMesseage(sp.toString());
+		customData.setPostDate(nowDate);
+		chatData.add(customData);
+		customAdapter = new CustomAdaptert(this, 0, chatData);
+		chatTimeLine.setAdapter(customAdapter);
+		
+		//テキストボックスの初期化
+		postMesseage.setText("");
+		
+		//リストの最終行を表示
+		chatTimeLine.setSelection(chatData.size());
 	}
 }
