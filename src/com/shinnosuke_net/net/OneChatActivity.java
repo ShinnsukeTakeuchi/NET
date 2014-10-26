@@ -1,9 +1,16 @@
 package com.shinnosuke_net.net;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.shinnosuke_net.net.tool.*;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 public class OneChatActivity extends Activity {
 
@@ -11,6 +18,23 @@ public class OneChatActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_one_chat);
+		
+		//テストデータ
+		Date date = new Date();
+		List<CustomData> chatData = new ArrayList<CustomData>();
+		for (int i=1 ; i<=30 ; i++) {
+			CustomData customData = new CustomData();
+			customData.setUserId("user00"+i);
+			customData.setUserName("user"+i);
+			customData.setMesseage("テストメッセージ"+i);
+			customData.setPostDate(date);
+			chatData.add(customData);
+		}
+		
+		//テストデータをListViewにセット
+		CustomAdaptert customAdapter = new CustomAdaptert(this, 0, chatData);
+		ListView chatTimeLine = (ListView) findViewById(R.id.oneChatTimeLine);
+		chatTimeLine.setAdapter(customAdapter);
 	}
 
 	@Override

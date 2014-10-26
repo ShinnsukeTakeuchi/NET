@@ -20,9 +20,8 @@ import android.widget.TextView;
 public class CustomAdaptert extends ArrayAdapter<CustomData> {
 	private LayoutInflater layoutInflater_;
 
-	public CustomAdaptert(Context context, int resource,
-			int textViewResourceId, List<CustomData> objects) {
-		super(context, resource, textViewResourceId, objects);
+	public CustomAdaptert(Context context, int textViewResourceId, List<CustomData> objects) {
+		super(context, textViewResourceId, objects);
 		layoutInflater_ = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
