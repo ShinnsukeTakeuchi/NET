@@ -70,7 +70,7 @@ public class OneChatActivity extends Activity {
 	 * @param v
 	 */
 	public void postMesseage(View v) {
-		EditText postMesseage = (EditText) findViewById(R.id.editMessage);
+		EditText postMesseage = (EditText) findViewById(R.id.ocEditMessage);
 		SpannableStringBuilder sp = (SpannableStringBuilder)postMesseage.getText();
 		
 		if (sp.toString().length()==0) {

@@ -45,7 +45,7 @@
         android:layout_weight="5" >
 
         <EditText
-            android:id="@+id/editMessage"
+            android:id="@+id/ocEditMessage"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
