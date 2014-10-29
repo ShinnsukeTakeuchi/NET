@@ -15,10 +15,25 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import java.net.MalformedURLException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import io.socket.IOAcknowledge;
+import io.socket.IOCallback;
+import io.socket.SocketIO;
+import io.socket.SocketIOException;
+
 public class OneChatActivity extends Activity {
+	/* チャットデータリスト変数 */
 	private List<CustomData> chatData;
+	/* チャット画面用リストビュー変数 */
 	private ListView chatTimeLine;
+	/* チャットデータ用アダプター変数 */
 	private CustomAdaptert customAdapter;
+	/* socket変数 */
+	private SocketIO socket;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +59,61 @@ public class OneChatActivity extends Activity {
 		
 		//リストの最終行を表示
 		chatTimeLine.setSelection(chatData.size());
+		
+		try {
+			webSocketConnect();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
 	}
+	
+	private void webSocketConnect() throws MalformedURLException {
+		socket = new SocketIO("ws://echo.websocket.org");
+		socket.connect(iocallback);
+	}
+	
+	private IOCallback iocallback = new IOCallback() {
+		
+		@Override
+		public void onMessage(JSONObject arg0, IOAcknowledge arg1) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void onMessage(String arg0, IOAcknowledge arg1) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void onError(SocketIOException arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void onDisconnect() {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void onConnect() {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void on(String arg0, IOAcknowledge ack, Object... args) {
+			final String message = (String)args[0];
+			
+			if (message.length() == 0) {
+				return;
+			}
+			createSetData(message);
+		}
+	};
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -72,28 +141,32 @@ public class OneChatActivity extends Activity {
 	public void postMesseage(View v) {
 		EditText postMesseage = (EditText) findViewById(R.id.ocEditMessage);
 		SpannableStringBuilder sp = (SpannableStringBuilder)postMesseage.getText();
-		
+		// 入力された文字がなければ何もしない
 		if (sp.toString().length()==0) {
 			//リストの最終行を表示
 			chatTimeLine.setSelection(chatData.size());
 			return;
 		}
 		
-		Date nowDate = new Date();
-		
-		CustomData customData = new CustomData();
-		customData.setUserId("user001");
-		customData.setUserName("テストユーザーさん");
-		customData.setMesseage(sp.toString());
-		customData.setPostDate(nowDate);
-		chatData.add(customData);
-		customAdapter = new CustomAdaptert(this, 0, chatData);
-		chatTimeLine.setAdapter(customAdapter);
+		socket.emit("message", sp.toString());
 		
 		//テキストボックスの初期化
 		postMesseage.setText("");
 		
 		//リストの最終行を表示
 		chatTimeLine.setSelection(chatData.size());
+	}
+	
+	private void createSetData(String message) {
+		Date nowDate = new Date();
+		
+		CustomData customData = new CustomData();
+		customData.setUserId("user001");
+		customData.setUserName("テストユーザーさん");
+		customData.setMesseage(message);
+		customData.setPostDate(nowDate);
+		chatData.add(customData);
+		customAdapter = new CustomAdaptert(this, 0, chatData);
+		chatTimeLine.setAdapter(customAdapter);
 	}
 }
