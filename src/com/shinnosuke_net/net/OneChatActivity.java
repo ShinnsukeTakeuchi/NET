@@ -7,15 +7,19 @@ import java.util.List;
 import com.shinnosuke_net.net.tool.*;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.SpannableStringBuilder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,7 +29,7 @@ import io.socket.IOCallback;
 import io.socket.SocketIO;
 import io.socket.SocketIOException;
 
-public class OneChatActivity extends Activity {
+public class OneChatActivity extends Activity implements OnClickListener {
 	/* チャットデータリスト変数 */
 	private List<CustomData> chatData;
 	/* チャット画面用リストビュー変数 */
@@ -35,10 +39,15 @@ public class OneChatActivity extends Activity {
 	/* socket変数 */
 	private SocketIO socket;
 	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_one_chat);
+		
+		// ボタン押下時の処理準備
+		View ocPostBtn = findViewById(R.id.ocPostBtn);
+		ocPostBtn.setOnClickListener(this);
 		
 		//テストデータ
 		Date date = new Date();
@@ -68,8 +77,10 @@ public class OneChatActivity extends Activity {
 	}
 	
 	private void webSocketConnect() throws MalformedURLException {
-		socket = new SocketIO("ws://echo.websocket.org");
+		//テスト用echoサーバー
+		socket = new SocketIO("http://echo.websocket.org");
 		socket.connect(iocallback);
+
 	}
 	
 	private IOCallback iocallback = new IOCallback() {
@@ -77,41 +88,37 @@ public class OneChatActivity extends Activity {
 		@Override
 		public void onMessage(JSONObject arg0, IOAcknowledge arg1) {
 			// TODO Auto-generated method stub
-			
+			System.out.println("onMessageJSON:Access");
 		}
 		
 		@Override
 		public void onMessage(String arg0, IOAcknowledge arg1) {
 			// TODO Auto-generated method stub
-			
+			System.out.println("onMessageString:Access");
 		}
 		
 		@Override
 		public void onError(SocketIOException arg0) {
 			// TODO Auto-generated method stub
-			
+			System.out.println("onError:Access");
 		}
 		
 		@Override
 		public void onDisconnect() {
 			// TODO Auto-generated method stub
-			
+			System.out.println("onDisconnect:Access");
 		}
 		
 		@Override
 		public void onConnect() {
 			// TODO Auto-generated method stub
-			
+			System.out.println("onConnect:Access");
 		}
 		
 		@Override
 		public void on(String arg0, IOAcknowledge ack, Object... args) {
 			final String message = (String)args[0];
-			
-			if (message.length() == 0) {
-				return;
-			}
-			createSetData(message);
+			System.out.println("on:"+message);
 		}
 	};
 
@@ -133,40 +140,26 @@ public class OneChatActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	/**
-	 * 送信ボタンを押された時の処理
-	 * @param v
-	 */
-	public void postMesseage(View v) {
+
+	@Override
+	public void onClick(View v) {
 		EditText postMesseage = (EditText) findViewById(R.id.ocEditMessage);
 		SpannableStringBuilder sp = (SpannableStringBuilder)postMesseage.getText();
+		System.out.println(sp.toString());
 		// 入力された文字がなければ何もしない
 		if (sp.toString().length()==0) {
+			System.out.println("文字入力されてない");
 			//リストの最終行を表示
 			chatTimeLine.setSelection(chatData.size());
 			return;
 		}
+		System.out.println("文字入力されていた");
 		
 		socket.emit("message", sp.toString());
 		
 		//テキストボックスの初期化
 		postMesseage.setText("");
-		
 		//リストの最終行を表示
 		chatTimeLine.setSelection(chatData.size());
-	}
-	
-	private void createSetData(String message) {
-		Date nowDate = new Date();
-		
-		CustomData customData = new CustomData();
-		customData.setUserId("user001");
-		customData.setUserName("テストユーザーさん");
-		customData.setMesseage(message);
-		customData.setPostDate(nowDate);
-		chatData.add(customData);
-		customAdapter = new CustomAdaptert(this, 0, chatData);
-		chatTimeLine.setAdapter(customAdapter);
 	}
 }
