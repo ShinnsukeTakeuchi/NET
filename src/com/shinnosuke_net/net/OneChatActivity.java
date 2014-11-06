@@ -80,7 +80,6 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		//テスト用echoサーバー
 		socket = new SocketIO("http://echo.websocket.org");
 		socket.connect(iocallback);
-
 	}
 	
 	private IOCallback iocallback = new IOCallback() {
@@ -155,7 +154,8 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		}
 		System.out.println("文字入力されていた");
 		
-		socket.emit("message", sp.toString());
+//		socket.emit("postMessage", sp.toString());
+		socket.emit(sp.toString());
 		
 		//テキストボックスの初期化
 		postMesseage.setText("");
