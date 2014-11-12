@@ -12,7 +12,7 @@
     tools:context="com.shinnosuke_net.net.MainActivity" >
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/userID"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="center"

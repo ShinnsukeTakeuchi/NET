@@ -1,17 +1,32 @@
 package com.shinnosuke_net.net;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener {
+	//ページ遷移用の変数
+	private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        //OnClickListenerのセット
+        View oneChat = findViewById(R.id.oneChat);
+        View grepChat = findViewById(R.id.grepChat);
+        View config = findViewById(R.id.config);
+        View appEnd = findViewById(R.id.appEnd);
+        oneChat.setOnClickListener(this);
+        grepChat.setOnClickListener(this);
+        config.setOnClickListener(this);
+        appEnd.setOnClickListener(this);
     }
 
 
@@ -33,4 +48,19 @@ public class MainActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+	@Override
+	public void onClick(View v) {
+		//押されたボタンの判定
+		if (v.getId() == R.id.oneChat) {// 二人でチャット
+			intent = new Intent(this, OneChatActivity.class);
+		} else if (v.getId() == R.id.grepChat) {// みんなでチャット
+			intent = new Intent(this, GrepChatActivity.class);
+		} else if (v.getId() == R.id.config) {// 設定
+			intent = new Intent(this, ConfigActivity.class);
+		} else {
+			this.finish();
+		}
+		startActivity(intent);
+	}
 }
