@@ -78,8 +78,14 @@ public class OneChatActivity extends Activity implements OnClickListener {
 	
 	private void webSocketConnect() throws MalformedURLException {
 		//テスト用echoサーバー
-		socket = new SocketIO("http://echo.websocket.org");
-		socket.connect(iocallback);
+		String url = "http://kojikoji.mydns.jp:8080/WebSocketServer/Post";
+//		URL url = new URL("http://kojikoji.mydns.jp:8080/WebSocketServer/Post");
+
+//		socket = new SocketIO();
+//		socket.connect(url, iocallback);
+		
+//		socket = new SocketIO(url);
+//		socket.connect(iocallback);
 	}
 	
 	private IOCallback iocallback = new IOCallback() {
@@ -156,7 +162,8 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		
 //		socket.emit("postMessage", sp.toString());
 		socket.emit(sp.toString());
-		
+		socket.send("");
+
 		//テキストボックスの初期化
 		postMesseage.setText("");
 		//リストの最終行を表示
