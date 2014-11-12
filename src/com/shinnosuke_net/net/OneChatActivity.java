@@ -39,6 +39,7 @@ public class OneChatActivity extends Activity implements OnClickListener {
 	/* socket変数 */
 	private SocketIO socket;
 	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
