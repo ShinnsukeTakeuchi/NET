@@ -39,6 +39,8 @@ public class OneChatActivity extends Activity implements OnClickListener {
 	/* socket変数 */
 	private SocketIO socket;
 	
+	private Handler handler = new Handler();
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -84,46 +86,42 @@ public class OneChatActivity extends Activity implements OnClickListener {
 //		socket = new SocketIO();
 //		socket.connect(url, iocallback);
 		
-//		socket = new SocketIO(url);
-//		socket.connect(iocallback);
+		socket = new SocketIO(url);
+		socket.connect(iocallback);
 	}
 	
+	/** IOCallback **/
 	private IOCallback iocallback = new IOCallback() {
 		
 		@Override
 		public void onMessage(JSONObject arg0, IOAcknowledge arg1) {
-			// TODO Auto-generated method stub
 			System.out.println("onMessageJSON:Access");
 		}
 		
 		@Override
 		public void onMessage(String arg0, IOAcknowledge arg1) {
-			// TODO Auto-generated method stub
 			System.out.println("onMessageString:Access");
 		}
 		
 		@Override
 		public void onError(SocketIOException arg0) {
-			// TODO Auto-generated method stub
+			arg0.printStackTrace();
 			System.out.println("onError:Access");
 		}
 		
 		@Override
 		public void onDisconnect() {
-			// TODO Auto-generated method stub
 			System.out.println("onDisconnect:Access");
 		}
 		
 		@Override
 		public void onConnect() {
-			// TODO Auto-generated method stub
 			System.out.println("onConnect:Access");
 		}
 		
 		@Override
 		public void on(String arg0, IOAcknowledge ack, Object... args) {
-			final String message = (String)args[0];
-			System.out.println("on:"+message);
+			System.out.println("on:Access");
 		}
 	};
 
