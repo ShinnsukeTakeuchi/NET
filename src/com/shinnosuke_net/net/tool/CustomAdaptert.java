@@ -24,6 +24,11 @@ public class CustomAdaptert extends ArrayAdapter<CustomData> {
 		super(context, textViewResourceId, objects);
 		layoutInflater_ = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
+	
+//	@Override
+//	public boolean isEnabled(int position) {
+//		return false;
+//	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {

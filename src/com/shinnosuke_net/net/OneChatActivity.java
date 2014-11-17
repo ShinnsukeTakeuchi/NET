@@ -7,7 +7,7 @@ import java.util.List;
 import com.shinnosuke_net.net.tool.*;
 
 import android.app.Activity;
-import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.SpannableStringBuilder;
@@ -18,16 +18,12 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import io.socket.IOAcknowledge;
-import io.socket.IOCallback;
-import io.socket.SocketIO;
-import io.socket.SocketIOException;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_17;
+import org.java_websocket.handshake.ServerHandshake;
 
 public class OneChatActivity extends Activity implements OnClickListener {
 	/* チャットデータリスト変数 */
@@ -36,20 +32,13 @@ public class OneChatActivity extends Activity implements OnClickListener {
 	private ListView chatTimeLine;
 	/* チャットデータ用アダプター変数 */
 	private CustomAdaptert customAdapter;
-	/* socket変数 */
-	private SocketIO socket;
 	
-	private Handler handler = new Handler();
-	
+	private WebSocketClient socket;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_one_chat);
-		
-		// ボタン押下時の処理準備
-		View ocPostBtn = findViewById(R.id.ocPostBtn);
-		ocPostBtn.setOnClickListener(this);
 		
 		//テストデータ
 		Date date = new Date();
@@ -63,67 +52,70 @@ public class OneChatActivity extends Activity implements OnClickListener {
 			chatData.add(customData);
 		}
 		
-		//テストデータをListViewにセット
-		customAdapter = new CustomAdaptert(this, 0, chatData);
-		chatTimeLine = (ListView) findViewById(R.id.oneChatTimeLine);
-		chatTimeLine.setAdapter(customAdapter);
+		//描画
+		onDrow();
 		
 		//リストの最終行を表示
 		chatTimeLine.setSelection(chatData.size());
-		
-		try {
-			webSocketConnect();
-		} catch (MalformedURLException e) {
+
+		System.out.println(Build.PRODUCT);
+		java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
+		java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
+
+		//ここからWebSocket
+		try{
+			URI uri = new URI("ws://kojikoji.mydns.jp:8080/WebSocketServer/Post");
+			
+			socket = new WebSocketClient(uri, new Draft_17()){
+				@Override
+				public void onClose(int arg0, String arg1, boolean arg2) {
+					// TODO Auto-generated method stub
+					System.out.println("onClose:Access");
+				}
+
+				@Override
+				public void onError(Exception arg0) {
+					// TODO Auto-generated method stub
+					System.out.println("onError:Access");
+					arg0.printStackTrace();
+				}
+
+				@Override
+				public void onMessage(String arg0) {
+					// TODO Auto-generated method stub
+					System.out.println("onMessage:Access");
+					System.out.println(arg0);
+					
+					Date date = new Date();
+					
+					CustomData customData = new CustomData();
+					customData.setUserId("testuser");
+					customData.setUserName("TestUser");
+					customData.setMesseage(arg0);
+					customData.setPostDate(date);
+					chatData.add(customData);
+					
+					//描画
+					onDrow();
+					
+					//リストの最終行を表示
+					chatTimeLine.setSelection(chatData.size());
+				}
+
+				@Override
+				public void onOpen(ServerHandshake arg0) {
+					// TODO Auto-generated method stub
+					System.out.println("onOpen:Access");
+					System.out.println(arg0);
+				}
+			};
+			
+			socket.connect();
+			
+		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	private void webSocketConnect() throws MalformedURLException {
-		//テスト用echoサーバー
-		String url = "http://kojikoji.mydns.jp:8080/WebSocketServer/Post";
-//		URL url = new URL("http://kojikoji.mydns.jp:8080/WebSocketServer/Post");
-
-//		socket = new SocketIO();
-//		socket.connect(url, iocallback);
-		
-		socket = new SocketIO(url);
-		socket.connect(iocallback);
-	}
-	
-	/** IOCallback **/
-	private IOCallback iocallback = new IOCallback() {
-		
-		@Override
-		public void onMessage(JSONObject arg0, IOAcknowledge arg1) {
-			System.out.println("onMessageJSON:Access");
-		}
-		
-		@Override
-		public void onMessage(String arg0, IOAcknowledge arg1) {
-			System.out.println("onMessageString:Access");
-		}
-		
-		@Override
-		public void onError(SocketIOException arg0) {
-			arg0.printStackTrace();
-			System.out.println("onError:Access");
-		}
-		
-		@Override
-		public void onDisconnect() {
-			System.out.println("onDisconnect:Access");
-		}
-		
-		@Override
-		public void onConnect() {
-			System.out.println("onConnect:Access");
-		}
-		
-		@Override
-		public void on(String arg0, IOAcknowledge ack, Object... args) {
-			System.out.println("on:Access");
-		}
-	};
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -144,13 +136,13 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
 	public void onClick(View v) {
+		System.out.println("onClick:Acess");
 		EditText postMesseage = (EditText) findViewById(R.id.ocEditMessage);
 		SpannableStringBuilder sp = (SpannableStringBuilder)postMesseage.getText();
 		System.out.println(sp.toString());
 		// 入力された文字がなければ何もしない
-		if (sp.toString().length()==0) {
+		if (sp.toString()!=null && sp.toString().length()==0) {
 			System.out.println("文字入力されてない");
 			//リストの最終行を表示
 			chatTimeLine.setSelection(chatData.size());
@@ -158,13 +150,20 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		}
 		System.out.println("文字入力されていた");
 		
-//		socket.emit("postMessage", sp.toString());
-		socket.emit(sp.toString());
-		socket.send("");
-
+		socket.send(sp.toString());
+		
 		//テキストボックスの初期化
 		postMesseage.setText("");
+	}
+	
+	private void onDrow() {
+		System.out.println("onDrow:Acess");
+		//テストデータをListViewにセット
+		customAdapter = new CustomAdaptert(this, 0, chatData);
+		chatTimeLine = (ListView) findViewById(R.id.oneChatTimeLine);
+		chatTimeLine.setAdapter(customAdapter);
+		
 		//リストの最終行を表示
-		chatTimeLine.setSelection(chatData.size());
+//		chatTimeLine.setSelection(chatData.size());
 	}
 }
