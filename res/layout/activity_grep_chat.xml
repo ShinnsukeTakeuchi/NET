@@ -32,7 +32,7 @@
     <ListView
         android:id="@+id/grepChatTimeLine"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="296dp" >
 
     </ListView>
     
@@ -55,7 +55,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="3"
-            android:onClick="postMesseage"
+            android:onClick="onClick"
             android:text="@string/gc_send_message" />
 
     </LinearLayout>

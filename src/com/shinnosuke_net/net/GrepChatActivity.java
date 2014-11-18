@@ -1,13 +1,20 @@
 package com.shinnosuke_net.net;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_17;
+import org.java_websocket.handshake.ServerHandshake;
 
 import com.shinnosuke_net.net.tool.CustomAdaptert;
 import com.shinnosuke_net.net.tool.CustomData;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.view.Menu;
@@ -17,9 +24,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 public class GrepChatActivity extends Activity {
+	/* チャットデータリスト変数 */
 	private List<CustomData> chatData;
+	/* チャット画面用リストビュー変数 */
 	private ListView chatTimeLine;
+	/* チャットデータ用アダプター変数 */
 	private CustomAdaptert customAdapter;
+	
+	private WebSocketClient socket;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,24 +39,80 @@ public class GrepChatActivity extends Activity {
 		setContentView(R.layout.activity_grep_chat);
 		
 		//テストデータ
-		Date date = new Date();
-		chatData = new ArrayList<CustomData>();
-		for (int i=1 ; i<=10 ; i++) {
-			CustomData customData = new CustomData();
-			customData.setUserId("user00"+i);
-			customData.setUserName("user"+i);
-			customData.setMesseage("テストメッセージ"+i);
-			customData.setPostDate(date);
-			chatData.add(customData);
-		}
-		
-		//テストデータをListViewにセット
-		customAdapter = new CustomAdaptert(this, 0, chatData);
-		chatTimeLine = (ListView) findViewById(R.id.grepChatTimeLine);
-		chatTimeLine.setAdapter(customAdapter);
-		
-		//リストの最終行を表示
-		chatTimeLine.setSelection(chatData.size());
+				Date date = new Date();
+				chatData = new ArrayList<CustomData>();
+				for (int i=1 ; i<=10 ; i++) {
+					CustomData customData = new CustomData();
+					customData.setUserId("user00"+i);
+					customData.setUserName("user"+i);
+					customData.setMesseage("テストメッセージ"+i);
+					customData.setPostDate(date);
+					chatData.add(customData);
+				}
+				
+				//描画
+				onDrow();
+				
+				//リストの最終行を表示
+				chatTimeLine.setSelection(chatData.size());
+
+				System.out.println(Build.PRODUCT);
+				java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
+				java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
+
+				//ここからWebSocket
+				try{
+					URI uri = new URI("ws://kojikoji.mydns.jp:8080/WebSocketServer/Post");
+					
+					socket = new WebSocketClient(uri, new Draft_17()){
+						@Override
+						public void onClose(int arg0, String arg1, boolean arg2) {
+							// TODO Auto-generated method stub
+							System.out.println("onClose:Access");
+						}
+
+						@Override
+						public void onError(Exception arg0) {
+							// TODO Auto-generated method stub
+							System.out.println("onError:Access");
+							arg0.printStackTrace();
+						}
+
+						@Override
+						public void onMessage(String arg0) {
+							// TODO Auto-generated method stub
+							System.out.println("onMessage:Access");
+							System.out.println(arg0);
+							
+							Date date = new Date();
+							
+							CustomData customData = new CustomData();
+							customData.setUserId("testuser");
+							customData.setUserName("TestUser");
+							customData.setMesseage(arg0);
+							customData.setPostDate(date);
+							chatData.add(customData);
+							
+							//描画
+							onDrow();
+							
+							//リストの最終行を表示
+							chatTimeLine.setSelection(chatData.size());
+						}
+
+						@Override
+						public void onOpen(ServerHandshake arg0) {
+							// TODO Auto-generated method stub
+							System.out.println("onOpen:Access");
+							System.out.println(arg0);
+						}
+					};
+					
+					socket.connect();
+					
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
 	}
 
 	@Override
@@ -66,35 +134,34 @@ public class GrepChatActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	/**
-	 * 送信ボタンを押された時の処理
-	 * @param v
-	 */
-	public void postMesseage(View v) {
+	public void onClick(View v) {
+		System.out.println("onClick:Acess");
 		EditText postMesseage = (EditText) findViewById(R.id.gcEditMessage);
 		SpannableStringBuilder sp = (SpannableStringBuilder)postMesseage.getText();
-		
-		if (sp.toString().length()==0) {
+		System.out.println(sp.toString());
+		// 入力された文字がなければ何もしない
+		if (sp.toString()!=null && sp.toString().length()==0) {
+			System.out.println("文字入力されてない");
 			//リストの最終行を表示
 			chatTimeLine.setSelection(chatData.size());
 			return;
 		}
+		System.out.println("文字入力されていた");
 		
-		Date nowDate = new Date();
-		
-		CustomData customData = new CustomData();
-		customData.setUserId("user001");
-		customData.setUserName("テストユーザーさん");
-		customData.setMesseage(sp.toString());
-		customData.setPostDate(nowDate);
-		chatData.add(customData);
-		customAdapter = new CustomAdaptert(this, 0, chatData);
-		chatTimeLine.setAdapter(customAdapter);
+		socket.send(sp.toString());
 		
 		//テキストボックスの初期化
 		postMesseage.setText("");
+	}
+	
+	private void onDrow() {
+		System.out.println("onDrow:Acess");
+		//テストデータをListViewにセット
+		customAdapter = new CustomAdaptert(this, 0, chatData);
+		chatTimeLine = (ListView) findViewById(R.id.grepChatTimeLine);
+		chatTimeLine.setAdapter(customAdapter);
 		
 		//リストの最終行を表示
-		chatTimeLine.setSelection(chatData.size());
+//		chatTimeLine.setSelection(chatData.size());
 	}
 }
