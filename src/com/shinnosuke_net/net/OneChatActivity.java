@@ -21,9 +21,16 @@ import android.widget.ListView;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft_17;
-import org.java_websocket.handshake.ServerHandshake;
+//import org.java_websocket.client.WebSocketClient;
+//import org.java_websocket.drafts.Draft_17;
+//import org.java_websocket.handshake.ServerHandshake;
+import org.java_websocket.util.*;
+import org.java_websocket.server.*;
+import org.java_websocket.handshake.*;
+import org.java_websocket.framing.*;
+import org.java_websocket.exceptions.*;
+import org.java_websocket.drafts.*;
+import org.java_websocket.client.*;
 
 public class OneChatActivity extends Activity implements OnClickListener {
 	/* チャットデータリスト変数 */
