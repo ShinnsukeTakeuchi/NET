@@ -1,12 +1,22 @@
 package com.shinnosuke_net.net;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity implements OnClickListener {
@@ -27,6 +37,28 @@ public class MainActivity extends Activity implements OnClickListener {
         grepChat.setOnClickListener(this);
         config.setOnClickListener(this);
         appEnd.setOnClickListener(this);
+        
+        InputStream input;
+		try {
+			input = new FileInputStream(Environment.getExternalStorageDirectory() + "/" +  "user_profile.json");
+			int size = input.available();
+			byte[] buffer = new byte[size];
+			input.read(buffer);
+			input.close();
+
+			String json = new String(buffer);
+
+			JSONObject userProfileJson = new JSONObject(json);
+
+			Toast.makeText(this, "ようこそ"+userProfileJson.getString("userName")+"さん", Toast.LENGTH_SHORT).show();
+
+		} catch (FileNotFoundException e) {
+		    e.printStackTrace();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} catch (JSONException e) {
+		    e.printStackTrace();
+		}
     }
 
 

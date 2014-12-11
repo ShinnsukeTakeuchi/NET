@@ -9,18 +9,30 @@ import com.shinnosuke_net.net.tool.*;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.text.SpannableStringBuilder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 //import org.java_websocket.client.WebSocketClient;
 //import org.java_websocket.drafts.Draft_17;
 //import org.java_websocket.handshake.ServerHandshake;
@@ -31,6 +43,8 @@ import org.java_websocket.framing.*;
 import org.java_websocket.exceptions.*;
 import org.java_websocket.drafts.*;
 import org.java_websocket.client.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class OneChatActivity extends Activity implements OnClickListener {
 	/* チャットデータリスト変数 */
@@ -69,6 +83,31 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
 		java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
 
+		//チャットルームの検索
+		InputStream input;
+		try {
+			input = new FileInputStream(Environment.getExternalStorageDirectory() + "/" +  "user_profile.json");
+			int size = input.available();
+			byte[] buffer = new byte[size];
+			input.read(buffer);
+			input.close();
+			String json = new String(buffer);
+			JSONObject userProfileJson = new JSONObject(json);
+
+			String searchUrl = "http://kojikoji.mydns.jp:8080/WebSocketServer/SearchRoom?userName="+userProfileJson.getString("userId");
+			
+			//HTTPアクセス
+
+		} catch (FileNotFoundException e) {
+		    e.printStackTrace();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		} catch (JSONException e) {
+		    e.printStackTrace();
+		}
+		
+		
+		
 		//ここからWebSocket
 		try{
 			URI uri = new URI("ws://kojikoji.mydns.jp:8080/WebSocketServer/Post");
