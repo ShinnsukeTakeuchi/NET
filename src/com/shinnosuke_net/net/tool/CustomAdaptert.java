@@ -54,9 +54,10 @@ public class CustomAdaptert extends ArrayAdapter<CustomData> {
 		 messeage.setText(item.getMesseage());
 		 
 		 TextView postDate;
-		 SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+//		 SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
 		 postDate = (TextView)convertView.findViewById(R.id.postDate);
-		 postDate.setText(sdf.format(item.getPostDate()));
+//		 postDate.setText(sdf.format(item.getPostDate()));
+		 postDate.setText(item.getPostDate());
 		 
 		 return convertView;
 	}

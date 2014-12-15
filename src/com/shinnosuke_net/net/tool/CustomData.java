@@ -12,7 +12,7 @@ public class CustomData {
 	private String userId;
 	private String userName;
 	private String messeage;
-	private Date postDate;
+	private String postDate;
 	
 	//getterとsetter
 	public String getUserId() {
@@ -33,10 +33,10 @@ public class CustomData {
 	public void setMesseage(String messeage) {
 		this.messeage = messeage;
 	}
-	public Date getPostDate() {
+	public String getPostDate() {
 		return postDate;
 	}
-	public void setPostDate(Date postDate) {
+	public void setPostDate(String postDate) {
 		this.postDate = postDate;
 	}
 }

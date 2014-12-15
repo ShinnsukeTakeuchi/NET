@@ -46,7 +46,7 @@ public class GrepChatActivity extends Activity {
 					customData.setUserId("user00"+i);
 					customData.setUserName("user"+i);
 					customData.setMesseage("テストメッセージ"+i);
-					customData.setPostDate(date);
+//					customData.setPostDate(date);
 					chatData.add(customData);
 				}
 				
@@ -90,7 +90,7 @@ public class GrepChatActivity extends Activity {
 							customData.setUserId("testuser");
 							customData.setUserName("TestUser");
 							customData.setMesseage(arg0);
-							customData.setPostDate(date);
+//							customData.setPostDate(date);
 							chatData.add(customData);
 							
 							//描画

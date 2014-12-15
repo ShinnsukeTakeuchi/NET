@@ -1,5 +1,6 @@
 package com.shinnosuke_net.net;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
@@ -56,6 +58,12 @@ public class OneChatActivity extends Activity implements OnClickListener {
 	
 	private WebSocketClient socket;
 	
+	/* 個人の情報 */
+	private JSONObject userProfileJson = new JSONObject();
+	
+	/* 日付初期化 */
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -64,14 +72,13 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		//テストデータ
 		Date date = new Date();
 		chatData = new ArrayList<CustomData>();
-		for (int i=1 ; i<=10 ; i++) {
-			CustomData customData = new CustomData();
-			customData.setUserId("user00"+i);
-			customData.setUserName("user"+i);
-			customData.setMesseage("テストメッセージ"+i);
-			customData.setPostDate(date);
-			chatData.add(customData);
-		}
+		
+		CustomData customData = new CustomData();
+		customData.setUserId("BestOwner");
+		customData.setUserName("運営者");
+		customData.setMesseage("ようこそチャットルームへ。");
+		customData.setPostDate(sdf.format(date));
+		chatData.add(customData);
 		
 		//描画
 		onDrow();
@@ -92,7 +99,7 @@ public class OneChatActivity extends Activity implements OnClickListener {
 			input.read(buffer);
 			input.close();
 			String json = new String(buffer);
-			JSONObject userProfileJson = new JSONObject(json);
+			userProfileJson = new JSONObject(json);
 
 			String searchUrl = "http://kojikoji.mydns.jp:8080/WebSocketServer/SearchRoom?userName="+userProfileJson.getString("userId");
 			
@@ -115,31 +122,34 @@ public class OneChatActivity extends Activity implements OnClickListener {
 			socket = new WebSocketClient(uri, new Draft_17()){
 				@Override
 				public void onClose(int arg0, String arg1, boolean arg2) {
-					// TODO Auto-generated method stub
 					System.out.println("onClose:Access");
 				}
 
 				@Override
 				public void onError(Exception arg0) {
-					// TODO Auto-generated method stub
 					System.out.println("onError:Access");
 					arg0.printStackTrace();
 				}
 
 				@Override
 				public void onMessage(String arg0) {
-					// TODO Auto-generated method stub
 					System.out.println("onMessage:Access");
 					System.out.println(arg0);
 					
-					Date date = new Date();
+					JsonEscape escJson = new JsonEscape();
+					JSONObject getJson = new JSONObject();
+					getJson = escJson.getJson(arg0);
 					
 					CustomData customData = new CustomData();
-					customData.setUserId("testuser");
-					customData.setUserName("TestUser");
-					customData.setMesseage(arg0);
-					customData.setPostDate(date);
-					chatData.add(customData);
+					try {
+						customData.setUserId(getJson.getString("userId"));
+						customData.setUserName(getJson.getString("userName"));
+						customData.setMesseage(getJson.getString("messeage"));
+						customData.setPostDate(getJson.getString("date"));
+						chatData.add(customData);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 					
 					//描画
 					onDrow();
@@ -194,9 +204,20 @@ public class OneChatActivity extends Activity implements OnClickListener {
 			chatTimeLine.setSelection(chatData.size());
 			return;
 		}
+		JSONObject sendJson = new JSONObject();
+		try {
+			Date date = new Date();
+			sendJson.put("userId", userProfileJson.getString("userId"));
+			sendJson.put("userName", userProfileJson.getString("userName"));
+			sendJson.put("messeage", sp.toString());
+			sendJson.put("date", sdf.format(date));
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		System.out.println("文字入力されていた");
 		
-		socket.send(sp.toString());
+		JsonEscape escJson = new JsonEscape();
+		socket.send(escJson.getString(sendJson));
 		
 		//テキストボックスの初期化
 		postMesseage.setText("");
