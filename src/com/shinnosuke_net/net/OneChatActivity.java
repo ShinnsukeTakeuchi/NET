@@ -30,14 +30,12 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-//import org.java_websocket.client.WebSocketClient;
-//import org.java_websocket.drafts.Draft_17;
-//import org.java_websocket.handshake.ServerHandshake;
 import org.java_websocket.util.*;
 import org.java_websocket.server.*;
 import org.java_websocket.handshake.*;
@@ -49,51 +47,59 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class OneChatActivity extends Activity implements OnClickListener {
-	/* チャットデータリスト変数 */
-	private List<CustomData> chatData;
-	/* チャット画面用リストビュー変数 */
-	private ListView chatTimeLine;
-	/* チャットデータ用アダプター変数 */
-	private CustomAdaptert customAdapter;
-	
+//	/* チャットデータリスト変数 */
+//	private List<CustomData> chatData;
+//	/* チャット画面用リストビュー変数 */
+//	private ListView chatTimeLine;
+//	/* チャットデータ用アダプター変数 */
+//	private CustomAdaptert customAdapter;
+
 	private WebSocketClient socket;
 	
+	private UpdateListView ulv = new UpdateListView();
+
 	/* 個人の情報 */
 	private JSONObject userProfileJson = new JSONObject();
-	
+
 	/* 日付初期化 */
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+	private static final SimpleDateFormat sdf = new SimpleDateFormat(
+			"yyyy.MM.dd HH:mm");
 	
+	Handler handler = new Handler();
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_one_chat);
-		
-		//テストデータ
+
+		// テストデータ
 		Date date = new Date();
 		chatData = new ArrayList<CustomData>();
-		
+
 		CustomData customData = new CustomData();
 		customData.setUserId("BestOwner");
 		customData.setUserName("運営者");
 		customData.setMesseage("ようこそチャットルームへ。");
 		customData.setPostDate(sdf.format(date));
 		chatData.add(customData);
-		
-		//描画
+
+		// 描画
 		onDrow();
-		
-		//リストの最終行を表示
+
+		// リストの最終行を表示
 		chatTimeLine.setSelection(chatData.size());
 
 		System.out.println(Build.PRODUCT);
 		java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
 		java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
 
-		//チャットルームの検索
+		// チャットルームの検索
+		// chatroom access
 		InputStream input;
 		try {
-			input = new FileInputStream(Environment.getExternalStorageDirectory() + "/" +  "user_profile.json");
+			input = new FileInputStream(
+					Environment.getExternalStorageDirectory() + "/"
+							+ "user_profile.json");
 			int size = input.available();
 			byte[] buffer = new byte[size];
 			input.read(buffer);
@@ -101,25 +107,31 @@ public class OneChatActivity extends Activity implements OnClickListener {
 			String json = new String(buffer);
 			userProfileJson = new JSONObject(json);
 
-			String searchUrl = "http://kojikoji.mydns.jp:8080/WebSocketServer/SearchRoom?userName="+userProfileJson.getString("userId");
+			System.out.println("userId:" + userProfileJson.getString("userId"));
+
+			// HTTPアクセス
+			HttpGetTask httpGetTask = new HttpGetTask();
+			httpGetTask.execute(userProfileJson.getString("userId"));
 			
-			//HTTPアクセス
+
+			// ここからWebSocket
+			webSocketAccess(httpGetTask.getRoomId());
 
 		} catch (FileNotFoundException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} catch (IOException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} catch (JSONException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		}
-		
-		
-		
-		//ここからWebSocket
-		try{
-			URI uri = new URI("ws://kojikoji.mydns.jp:8080/WebSocketServer/Post");
-			
-			socket = new WebSocketClient(uri, new Draft_17()){
+	}
+
+	private void webSocketAccess(String roomId) {
+		try {
+			URI uri = new URI(
+					"ws://kojikoji.mydns.jp:8080/WebSocketServer/Post/"+roomId);
+
+			socket = new WebSocketClient(uri, new Draft_17()) {
 				@Override
 				public void onClose(int arg0, String arg1, boolean arg2) {
 					System.out.println("onClose:Access");
@@ -135,27 +147,31 @@ public class OneChatActivity extends Activity implements OnClickListener {
 				public void onMessage(String arg0) {
 					System.out.println("onMessage:Access");
 					System.out.println(arg0);
-					
-					JsonEscape escJson = new JsonEscape();
+
+//					JsonEscape escJson = new JsonEscape();
 					JSONObject getJson = new JSONObject();
-					getJson = escJson.getJson(arg0);
-					
+//					getJson = escJson.getJson(arg0);
+
 					CustomData customData = new CustomData();
-					try {
-						customData.setUserId(getJson.getString("userId"));
-						customData.setUserName(getJson.getString("userName"));
-						customData.setMesseage(getJson.getString("messeage"));
-						customData.setPostDate(getJson.getString("date"));
+//					try {
+//						customData.setUserId(getJson.getString("userId"));
+//						customData.setUserName(getJson.getString("userName"));
+//						customData.setMesseage(getJson.getString("messeage"));
+//						customData.setPostDate(getJson.getString("date"));
+						customData.setUserId("userId");
+						customData.setUserName("userName");
+						customData.setMesseage(arg0);
+						customData.setPostDate("date");
 						chatData.add(customData);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-					
-					//描画
+//					} catch (JSONException e) {
+//						e.printStackTrace();
+//					}
+
+					// 描画
 					onDrow();
-					
-					//リストの最終行を表示
-					chatTimeLine.setSelection(chatData.size());
+
+					// リストの最終行を表示
+					ulv.update();
 				}
 
 				@Override
@@ -165,9 +181,9 @@ public class OneChatActivity extends Activity implements OnClickListener {
 					System.out.println(arg0);
 				}
 			};
-			
+
 			socket.connect();
-			
+
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
@@ -195,13 +211,14 @@ public class OneChatActivity extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		System.out.println("onClick:Acess");
 		EditText postMesseage = (EditText) findViewById(R.id.ocEditMessage);
-		SpannableStringBuilder sp = (SpannableStringBuilder)postMesseage.getText();
+		SpannableStringBuilder sp = (SpannableStringBuilder) postMesseage
+				.getText();
 		System.out.println(sp.toString());
 		// 入力された文字がなければ何もしない
-		if (sp.toString()!=null && sp.toString().length()==0) {
+		if (sp.toString() != null && sp.toString().length() == 0) {
 			System.out.println("文字入力されてない");
-			//リストの最終行を表示
-			chatTimeLine.setSelection(chatData.size());
+			// リストの最終行を表示
+			ulv.update();
 			return;
 		}
 		JSONObject sendJson = new JSONObject();
@@ -214,23 +231,27 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		System.out.println("文字入力されていた");
-		
 		JsonEscape escJson = new JsonEscape();
-		socket.send(escJson.getString(sendJson));
-		
-		//テキストボックスの初期化
+
+		System.out.println(escJson.getString(sendJson));
+		System.out.println("文字入力されていた");
+
+		// socket.send(escJson.getString(sendJson));
+		socket.send("ありがとう");
+
+		// テキストボックスの初期化
 		postMesseage.setText("");
 	}
-	
+
 	private void onDrow() {
 		System.out.println("onDrow:Acess");
-		//テストデータをListViewにセット
+		
+		// テストデータをListViewにセット
 		customAdapter = new CustomAdaptert(this, 0, chatData);
 		chatTimeLine = (ListView) findViewById(R.id.oneChatTimeLine);
-		chatTimeLine.setAdapter(customAdapter);
-		
-		//リストの最終行を表示
-//		chatTimeLine.setSelection(chatData.size());
+		ulv.setAdapter(customAdapter);
+
+		// リストの最終行を表示
+		ulv.update();
 	}
 }
