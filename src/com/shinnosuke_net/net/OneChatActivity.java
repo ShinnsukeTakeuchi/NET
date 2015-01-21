@@ -8,6 +8,7 @@ import java.util.List;
 import com.shinnosuke_net.net.tool.*;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -85,19 +86,21 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		customData.setPostDate(sdf.format(date));
 		chatData.add(customData);
 		
-		Handler handler= new Handler();
-
-		handler.post(new Runnable() {
-		  @Override
-		  public void run() {
-			  setData(chatData);
-			  try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		  }
-		});
+//		Handler handler= new Handler();
+//
+//		handler.post(new Runnable() {
+//		  @Override
+//		  public void run() {
+//			  setData(chatData);
+//			  try {
+//				Thread.sleep(2000);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		  }
+//		});
+		
+		setData(chatData);
 
 		searchRoom();
 	}
@@ -109,6 +112,8 @@ public class OneChatActivity extends Activity implements OnClickListener {
 							+ roomId);
 
 			socket = new WebSocketClient(uri, new Draft_17()) {
+				
+				
 				@Override
 				public void onClose(int arg0, String arg1, boolean arg2) {
 					System.out.println("onClose:Access");
@@ -144,11 +149,16 @@ public class OneChatActivity extends Activity implements OnClickListener {
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
+					
+					handler.post(new Runnable(){
+						
+						@Override
+						public void run() {
+							setData(chatData);
+							onDrow();
+						}
+					}); 
 
-//					setData(chatData);
-
-					// 描画
-//					onDrow();
 				}
 
 				@Override
@@ -194,8 +204,6 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		// 入力された文字がなければ何もしない
 		if (sp.toString() != null && sp.toString().length() == 0) {
 			System.out.println("文字入力されてない");
-			// リストの最終行を表示
-//			onDrow();
 			return;
 		}
 		JSONObject sendJson = new JSONObject();
@@ -214,10 +222,15 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		System.out.println("文字入力されていた");
 
 		socket.send(escJson.getString(sendJson));
-		// socket.send("ありがとう");
-
+		
 		// テキストボックスの初期化
 		postMesseage.setText("");
+	}
+	
+	public void onChatClose(View v) {
+		socket.onClose(0, "退室しました", true);
+		socket.close();
+		Toast.makeText(this, "Chatを終了しました", Toast.LENGTH_SHORT).show();
 	}
 
 	private void setData(List<CustomData> chatData) {
@@ -254,8 +267,22 @@ public class OneChatActivity extends Activity implements OnClickListener {
 			httpGetTask.execute(userProfileJson.getString("userId"));
 
 			// ここからWebSocket
-			webSocketAccess(httpGetTask.getRoomId());
-
+			boolean taskWait = true;
+			while(taskWait) {
+				try {
+					Thread.sleep(500);
+					if(httpGetTask.getRoomId()!=null && !"".equals(httpGetTask.getRoomId())) {
+						taskWait = false;
+						webSocketAccess(httpGetTask.getRoomId());
+						System.out.println("RoomID:"+httpGetTask.getRoomId());
+					} else {
+						System.out.println("RoomID not get");
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
