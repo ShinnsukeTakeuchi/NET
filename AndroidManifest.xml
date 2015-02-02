@@ -18,8 +18,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:noHistory="true" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,19 +27,14 @@
         </activity>
         <activity
             android:name=".OneChatActivity"
-            android:label="@string/title_activity_one_chat" >
-        </activity>
-        <activity
-            android:name=".GrepChatActivity"
-            android:label="@string/title_activity_grep_chat" >
-        </activity>
-        <activity
-            android:name=".SelectChatActivity"
-            android:label="@string/title_activity_select_chat" >
+            android:label="@string/title_activity_one_chat"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
             android:name=".ConfigActivity"
-            android:label="@string/title_activity_config" >
+            android:label="@string/title_activity_config"
+            android:noHistory="true"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
     </application>
 

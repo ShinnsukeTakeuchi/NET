@@ -30,13 +30,9 @@ public class MainActivity extends Activity implements OnClickListener {
         
         //OnClickListenerのセット
         View oneChat = findViewById(R.id.oneChat);
-        View grepChat = findViewById(R.id.grepChat);
         View config = findViewById(R.id.config);
-        View appEnd = findViewById(R.id.appEnd);
         oneChat.setOnClickListener(this);
-        grepChat.setOnClickListener(this);
         config.setOnClickListener(this);
-        appEnd.setOnClickListener(this);
         
         InputStream input;
 		try {
@@ -86,13 +82,13 @@ public class MainActivity extends Activity implements OnClickListener {
 		//押されたボタンの判定
 		if (v.getId() == R.id.oneChat) {// 二人でチャット
 			intent = new Intent(this, OneChatActivity.class);
-		} else if (v.getId() == R.id.grepChat) {// みんなでチャット
-			intent = new Intent(this, GrepChatActivity.class);
 		} else if (v.getId() == R.id.config) {// 設定
 			intent = new Intent(this, ConfigActivity.class);
-		} else {
-			this.finish();
 		}
 		startActivity(intent);
+	}
+	
+	public void appEnd(View v) {
+		this.finish();
 	}
 }

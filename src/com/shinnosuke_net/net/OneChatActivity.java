@@ -8,6 +8,7 @@ import java.util.List;
 import com.shinnosuke_net.net.tool.*;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,7 +54,7 @@ public class OneChatActivity extends Activity implements OnClickListener {
 	/* チャット画面用リストビュー変数 */
 	private ListView chatTimeLine;
 	/* チャットデータ用アダプター変数 */
-	private CustomAdaptert customAdapter;
+	private CustomAdapter customAdapter;
 
 	private WebSocketClient socket;
 
@@ -65,6 +66,8 @@ public class OneChatActivity extends Activity implements OnClickListener {
 			"yyyy.MM.dd HH:mm");
 
 	Handler handler = new Handler();
+	
+	private EditText postMesseage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +79,8 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
 
 		chatTimeLine = (ListView) findViewById(R.id.oneChatTimeLine);
+		postMesseage = (EditText) findViewById(R.id.ocEditMessage);
+//		postMesseage.setBackgroundColor(Color.rgb(254, 154, 46));
 
 		Date date = new Date();
 
@@ -197,7 +202,7 @@ public class OneChatActivity extends Activity implements OnClickListener {
 
 	public void onClick(View v) {
 		System.out.println("onClick:Acess");
-		EditText postMesseage = (EditText) findViewById(R.id.ocEditMessage);
+		
 		SpannableStringBuilder sp = (SpannableStringBuilder) postMesseage
 				.getText();
 		System.out.println(sp.toString());
@@ -231,10 +236,11 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		socket.onClose(0, "退室しました", true);
 		socket.close();
 		Toast.makeText(this, "Chatを終了しました", Toast.LENGTH_SHORT).show();
+		this.finish();
 	}
 
 	private void setData(List<CustomData> chatData) {
-		customAdapter = new CustomAdaptert(this, 0, chatData);
+		customAdapter = new CustomAdapter(this, 0, chatData);
 		chatTimeLine.setAdapter(customAdapter);
 
 		onDrow();

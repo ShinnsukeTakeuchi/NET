@@ -34,17 +34,6 @@
         android:textSize="24dp" />
 
     <Button
-        android:id="@+id/grepChat"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_margin="15dp"
-        android:layout_weight="1"
-        android:background="#fe9a2e"
-        android:text="@string/grep_chat"
-        android:textColor="#ffffff"
-        android:textSize="24dp" />
-
-    <Button
         android:id="@+id/config"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -62,6 +51,7 @@
         android:layout_margin="15dp"
         android:layout_weight="1"
         android:background="#fe9a2e"
+        android:onClick="appEnd"
         android:text="@string/app_close"
         android:textColor="#ffffff"
         android:textSize="24dp" />
