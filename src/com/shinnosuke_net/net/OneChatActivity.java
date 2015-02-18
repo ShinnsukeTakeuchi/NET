@@ -49,30 +49,27 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class OneChatActivity extends Activity implements OnClickListener {
-	/* チャットデータ用リスト */
-	List<CustomData> chatData = new ArrayList<CustomData>();
+	/* チャットデータリスト */
+	ChatData chatData = new ChatData();
 	/* チャット画面用リストビュー変数 */
 	private ListView chatTimeLine;
 	/* チャットデータ用アダプター変数 */
 	private CustomAdapter customAdapter;
-
-	private WebSocketClient socket;
-
 	/* 個人の情報 */
 	private JSONObject userProfileJson = new JSONObject();
-
 	/* 日付初期化 */
 	private static final SimpleDateFormat sdf = new SimpleDateFormat(
 			"yyyy.MM.dd HH:mm");
 
-	Handler handler = new Handler();
-	
+	WebSocketHelper wsh;
+
 	private EditText postMesseage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_one_chat);
+		System.out.println("OneChatActivity:onCreate");
 
 		System.out.println(Build.PRODUCT);
 		java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
@@ -80,105 +77,54 @@ public class OneChatActivity extends Activity implements OnClickListener {
 
 		chatTimeLine = (ListView) findViewById(R.id.oneChatTimeLine);
 		postMesseage = (EditText) findViewById(R.id.ocEditMessage);
-//		postMesseage.setBackgroundColor(Color.rgb(254, 154, 46));
 
 		Date date = new Date();
 
 		CustomData customData = new CustomData();
 		customData.setUserId("BestOwner");
-		customData.setUserName("運営者");
+		customData.setUserName("システムくん");
 		customData.setMesseage("ようこそチャットルームへ。");
 		customData.setPostDate(sdf.format(date));
 		chatData.add(customData);
-		
-//		Handler handler= new Handler();
-//
-//		handler.post(new Runnable() {
-//		  @Override
-//		  public void run() {
-//			  setData(chatData);
-//			  try {
-//				Thread.sleep(2000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		  }
-//		});
-		
-		setData(chatData);
-
+		 
 		searchRoom();
 	}
 
-	private void webSocketAccess(String roomId) {
-		try {
-			URI uri = new URI(
-					"ws://kojikoji.mydns.jp:8080/WebSocketServer/Post/"
-							+ roomId);
+	@Override
+	protected void onStart() {
+		super.onStart();
+		System.out.println("OneChatActivity:onStart");
+	}
 
-			socket = new WebSocketClient(uri, new Draft_17()) {
-				
-				
-				@Override
-				public void onClose(int arg0, String arg1, boolean arg2) {
-					System.out.println("onClose:Access");
-				}
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		System.out.println("OneChatActivity:onRestart");
+	}
 
-				@Override
-				public void onError(Exception arg0) {
-					System.out.println("onError:Access");
-					arg0.printStackTrace();
-				}
+	@Override
+	protected void onResume() {
+		super.onResume();
+		System.out.println("OneChatActivity:onResume");
+	}
 
-				@Override
-				public void onMessage(String arg0) {
-					System.out.println("onMessage:Access");
-					System.out.println(arg0);
+	@Override
+	protected void onPause() {
+		super.onPause();
+		System.out.println("OneChatActivity:onPause");
+	}
 
-					JSONObject getJson = new JSONObject();
-					JsonEscape escJson = new JsonEscape();
-					getJson = escJson.getJson(arg0);
+	@Override
+	protected void onStop() {
+		super.onStop();
+		System.out.println("OneChatActivity:onStop");
+	}
 
-					CustomData customData = new CustomData();
-					try {
-						customData.setUserId(getJson.getString("userId"));
-						customData.setUserName(getJson.getString("userName"));
-						customData.setMesseage(getJson.getString("messeage"));
-						customData.setPostDate(getJson.getString("date"));
-						// customData.setUserId("userId");
-						// customData.setUserName("userName");
-						// customData.setMesseage(arg0);
-						// customData.setPostDate("date");
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 
-						chatData.add(customData);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-					
-					handler.post(new Runnable(){
-						
-						@Override
-						public void run() {
-							setData(chatData);
-							onDrow();
-						}
-					}); 
-
-				}
-
-				@Override
-				public void onOpen(ServerHandshake arg0) {
-					// TODO Auto-generated method stub
-					System.out.println("onOpen:Access");
-					System.out.println(arg0);
-				}
-			};
-
-			socket.connect();
-
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+		System.out.println("OneChatActivity:onDestroy");
 	}
 
 	@Override
@@ -201,7 +147,7 @@ public class OneChatActivity extends Activity implements OnClickListener {
 	}
 
 	public void onClick(View v) {
-		System.out.println("onClick:Acess");
+		System.out.println("OneChatActivity:onClick");
 		
 		SpannableStringBuilder sp = (SpannableStringBuilder) postMesseage
 				.getText();
@@ -226,20 +172,22 @@ public class OneChatActivity extends Activity implements OnClickListener {
 		System.out.println(escJson.getString(sendJson));
 		System.out.println("文字入力されていた");
 
-		socket.send(escJson.getString(sendJson));
+		wsh.send(escJson.getString(sendJson));
 		
 		// テキストボックスの初期化
 		postMesseage.setText("");
 	}
 	
 	public void onChatClose(View v) {
-		socket.onClose(0, "退室しました", true);
-		socket.close();
+		System.out.println("OneChatActivity:onChatClose");
+		wsh.onClose(0, "退室しました", true);
+		wsh.close();
 		Toast.makeText(this, "Chatを終了しました", Toast.LENGTH_SHORT).show();
 		this.finish();
 	}
 
-	private void setData(List<CustomData> chatData) {
+	public void setData(List<CustomData> chatData) {
+		System.out.println("OneChatActivity:setDate");
 		customAdapter = new CustomAdapter(this, 0, chatData);
 		chatTimeLine.setAdapter(customAdapter);
 
@@ -247,11 +195,13 @@ public class OneChatActivity extends Activity implements OnClickListener {
 	}
 
 	private void onDrow() {
+		System.out.println("OneChatActivity:onDrow");
 		System.out.println("onDrow:Acess");
 		chatTimeLine.setSelection(chatData.size());
 	}
 
 	private void searchRoom() {
+		System.out.println("OneChatActivity:searchRoom");
 		// チャットルームの検索
 		// chatroom access
 		InputStream input;
@@ -272,20 +222,25 @@ public class OneChatActivity extends Activity implements OnClickListener {
 			HttpGetTask httpGetTask = new HttpGetTask();
 			httpGetTask.execute(userProfileJson.getString("userId"));
 
-			// ここからWebSocket
 			boolean taskWait = true;
 			while(taskWait) {
 				try {
 					Thread.sleep(500);
 					if(httpGetTask.getRoomId()!=null && !"".equals(httpGetTask.getRoomId())) {
 						taskWait = false;
-						webSocketAccess(httpGetTask.getRoomId());
+						wsh = new WebSocketHelper(httpGetTask.getRoomId());
 						System.out.println("RoomID:"+httpGetTask.getRoomId());
 					} else {
 						System.out.println("RoomID not get");
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+					Toast.makeText(this, "チャットが始まりませんでした。(WSE:02)", Toast.LENGTH_SHORT).show();
+					this.finish();
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+					Toast.makeText(this, "チャットが始まりませんでした。(WSE:01)", Toast.LENGTH_SHORT).show();
+					this.finish();
 				}
 			}
 			

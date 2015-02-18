@@ -23,10 +23,11 @@ public class MainActivity extends Activity implements OnClickListener {
 	//ページ遷移用の変数
 	private Intent intent;
 
-    @Override
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+		System.out.println("MainActivity:onCreate");
         
         //OnClickListenerのセット
         View oneChat = findViewById(R.id.oneChat);
@@ -56,7 +57,47 @@ public class MainActivity extends Activity implements OnClickListener {
 		    e.printStackTrace();
 		}
     }
+	
+    @Override
+	protected void onStart() {
+		super.onStart();
+		System.out.println("MainActivity:onStart");
+	}
 
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		System.out.println("MainActivity:onRestart");
+	}
+
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		System.out.println("MainActivity:onResume");
+	}
+
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		System.out.println("MainActivity:onPause");
+	}
+
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		System.out.println("MainActivity:onStop");
+	}
+
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		System.out.println("MainActivity:onDestroy");
+	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

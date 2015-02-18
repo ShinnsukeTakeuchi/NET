@@ -38,6 +38,7 @@ public class ConfigActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_config);
+		System.out.println("ConfigActivity:onCreate");
 
 		EditText userId = (EditText) findViewById(R.id.user_id);
 		EditText userName = (EditText) findViewById(R.id.user_name);
@@ -114,6 +115,7 @@ public class ConfigActivity extends Activity {
 	}
 
 	public void chengeUserProfile(View v) {
+		System.out.println("ConfigActivity:changeUserProfile");
 		EditText userId = (EditText) findViewById(R.id.user_id);
 		EditText userName = (EditText) findViewById(R.id.user_name);
 		EditText sex = (EditText) findViewById(R.id.sex);
